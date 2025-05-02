@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT Orbit Explorer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #0a1a0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            cursor: pointer;
+        }
+        
+        #animation-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #center-sphere {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, #2ecc71, #27ae60);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.6);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        #center-sphere img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .satellite {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+        
+        .satellite:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            z-index: 100;
+        }
+        
+        #intro-text {
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #2ecc71;
+            opacity: 0;
+            transition: opacity 1s;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(46, 204, 113, 0.7);
+        }
+        
+        #skip-btn {
+            position: absolute;
+            bottom: 10%;
+            right: 10%;
+            padding: 10px 25px;
+            background: rgba(46, 204, 113, 0.2);
+            color: white;
+            border: 1px solid #2ecc71;
+            border-radius: 25px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s, background 0.3s;
+            font-family: 'Arial', sans-serif;
+            font-size: 1rem;
+        }
+        
+        #skip-btn:hover {
+            background: rgba(46, 204, 113, 0.4);
+        }
+        
+        .tech-icon {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="animation-container">
+        <div id="center-sphere" title="Click to enter">
+            <img src="IMG_20250108_053216_091.jpg" alt="ICT Logo" onerror="this.onerror=null; this.style.background='radial-gradient(circle at 30% 30%, #2ecc71, #27ae60)'; this.innerHTML='ICT'">
+        </div>
+        <div id="intro-text">Connecting Technology & Innovation</div>
+        <button id="skip-btn">Enter Portal</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('animation-container');
+            const centerSphere = document.getElementById('center-sphere');
+            const introText = document.getElementById('intro-text');
+            const skipBtn = document.getElementById('skip-btn');
+            
+            // Target URL
+            const targetUrl = "file:///C:/Users/tesfaayee/OneDrive/Desktop/my%20web/index1.html";
+            
+            // Create orbits and satellites
+            const orbits = [];
+            const satellites = [];
+            const colors = ['#2ecc71', '#3498db', '#1abc9c', '#16a085', '#27ae60'];
+            const icons = ['<div class="tech-icon">🔌</div>', '<div class="tech-icon">💻</div>', 
+                          '<div class="tech-icon">🌐</div>', '<div class="tech-icon">📱</div>', 
+                          '<div class="tech-icon">🖥️</div>'];
+            
+            // Create 5 orbits with satellites
+            for (let i = 0; i < 5; i++) {
+                const radius = 100 + (i * 80);
+                const orbit = document.createElement('div');
+                orbit.className = 'orbit';
+                orbit.style.width = `${radius * 2}px`;
+                orbit.style.height = `${radius * 2}px`;
+                container.appendChild(orbit);
+                orbits.push(orbit);
+                
+                // Create satellite
+                const satellite = document.createElement('div');
+                satellite.className = 'satellite';
+                satellite.style.background = `linear-gradient(135deg, ${colors[i]}, ${colors[(i+1)%colors.length]})`;
+                satellite.innerHTML = icons[i];
+                container.appendChild(satellite);
+                satellites.push({
+                    element: satellite,
+                    radius: radius,
+                    angle: Math.random() * Math.PI * 2,
+                    speed: 0.005 + (Math.random() * 0.003)
+                });
+            }
+            
+            // Animation variables
+            let animationId;
+            let isPaused = false;
+            let introShown = false;
+            
+            // Animate function
+            function animate() {
+                satellites.forEach(sat => {
+                    if (!isPaused) {
+                        sat.angle += sat.speed;
+                    }
+                    const x = Math.cos(sat.angle) * sat.radius + window.innerWidth / 2;
+                    const y = Math.sin(sat.angle) * sat.radius + window.innerHeight / 2;
+                    sat.element.style.left = `${x}px`;
+                    sat.element.style.top = `${y}px`;
+                });
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+            
+            // Show intro text after delay
+            setTimeout(() => {
+                introText.style.opacity = '1';
+                skipBtn.style.opacity = '1';
+                introShown = true;
+            }, 3000);
+            
+            // Interaction - click on center sphere
+            centerSphere.addEventListener('click', () => {
+                window.location.href = targetUrl;
+            });
+            
+            // Interaction - mouse move for parallax effect
+            document.addEventListener('mousemove', (e) => {
+                if (introShown) {
+                    const x = e.clientX / window.innerWidth;
+                    const y = e.clientY / window.innerHeight;
+                    
+                    centerSphere.style.transform = `translate(-50%, -50%) translate(${(x - 0.5) * 20}px, ${(y - 0.5) * 20}px)`;
+                    
+                    satellites.forEach((sat, i) => {
+                        const factor = (i + 1) * 0.3;
+                        sat.element.style.transform = `translate(-50%, -50%) translate(${(x - 0.5) * 20 * factor}px, ${(y - 0.5) * 20 * factor}px)`;
+                    });
+                }
+            });
+            
+            // Skip button (Enter Portal)
+            skipBtn.addEventListener('click', () => {
+                window.location.href = targetUrl;
+            });
+            
+            // Make satellites interactive
+            satellites.forEach(sat => {
+                sat.element.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sat.element.style.animation = 'pulse 0.5s';
+                    setTimeout(() => {
+                        sat.element.style.animation = '';
+                    }, 500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
